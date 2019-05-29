@@ -19,20 +19,20 @@ public class Network {
 
     final static String sortBy = "forks";
 
-    public static URL buildUrl (String gitSearchQuery) {
+    public static URL buildUrl(String githubSearchQuery) {
         Uri builtUri = Uri.parse(GITHUB_URL).buildUpon()
-                .appendQueryParameter(PARAM_QUERY, gitSearchQuery)
+                .appendQueryParameter(PARAM_QUERY, githubSearchQuery)
                 .appendQueryParameter(PARAM_SORT, sortBy)
                 .build();
 
-        URL Url = null;
-
+        URL url = null;
         try {
-            Url = new URL(builtUri.toString());
+            url = new URL(builtUri.toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        return Url;
+
+        return url;
     }
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
