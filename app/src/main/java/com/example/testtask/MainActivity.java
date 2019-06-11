@@ -1,6 +1,5 @@
 package com.example.testtask;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     Button search_btn;
     TextView display;
     ListView gitListView;
+    private URL generateURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,10 +35,7 @@ public class MainActivity extends AppCompatActivity {
         search_et = (EditText) findViewById(R.id.search_et);
         display = (TextView) findViewById(R.id.display_url);
 
-
         gitListView = (ListView) findViewById(R.id.list_item);
-
-
 
 
 
@@ -46,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String getText = search_et.getText().toString();
-                URL generateURL = Network.buildUrl(getText);
+                generateURL = Network.buildUrl(getText);
 
                 display.setText(generateURL.toString());
 
@@ -61,25 +58,34 @@ public class MainActivity extends AppCompatActivity {
         search_btn.setOnClickListener(onClickListener);
     }
 
-    class gitAsync extends AsyncTask<URL, Void, ArrayList<GitData>> {
+    class gitAsync extends AsyncTask<URL, Void, String> {
 
         @Override
-        protected ArrayList<GitData> doInBackground(URL... urls) {
+        protected String doInBackground(URL... urls) {
             URL searchUrl = urls[0];
-            String jsonResponse = "";
+            String gitSearchUrl = null;
+
+            try {
+                gitSearchUrl = Network.getResponseFromHttpUrl(searchUrl);
+
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+
+            return gitSearchUrl;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
 
             ArrayList<GitData> gitData = new ArrayList<>();
 
             try {
-                jsonResponse = Network.getResponseFromHttpUrl(searchUrl);
-
-                JSONObject baseJsonResponse = new JSONObject(jsonResponse);
+                JSONObject baseJsonResponse = new JSONObject(String.valueOf(generateURL));
                 JSONArray featureArray = baseJsonResponse.getJSONArray("items");
 
                 for (int i = 0; i < featureArray.length(); i++) {
                     JSONObject currentGitData = featureArray.getJSONObject(i);
-
-                    JSONObject properties = currentGitData.getJSONObject(String.valueOf(i));
 
                     String repoName = currentGitData.getString("name");
                     String descript = currentGitData.getString("description");
@@ -91,23 +97,12 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
-
-            return gitData;
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<GitData> gitData) {
 
             ApiAdapter adapter = new ApiAdapter(MainActivity.this, gitData);
             gitListView.setAdapter(adapter);
         }
     }
-
-
 }
