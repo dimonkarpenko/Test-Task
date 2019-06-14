@@ -9,11 +9,10 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 class ApiAdapter extends ArrayAdapter<GitData> {
 
-    public ApiAdapter(Activity activity, ArrayList<GitData> gitData) {
+    public ApiAdapter(MainActivity activity, ArrayList<GitData> gitData) {
         super(activity, 0, gitData);
     }
 

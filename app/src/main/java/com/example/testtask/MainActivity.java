@@ -1,5 +1,6 @@
 package com.example.testtask;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,7 +26,8 @@ public class MainActivity extends AppCompatActivity {
     Button search_btn;
     TextView display;
     ListView gitListView;
-    private URL generateURL;
+    URL generateURL;
+    JSONArray items;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         search_et = (EditText) findViewById(R.id.search_et);
         display = (TextView) findViewById(R.id.display_url);
 
-        gitListView = (ListView) findViewById(R.id.list_item);
+
+        gitListView = (ListView) findViewById(R.id.list);
 
 
 
@@ -47,9 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
                 display.setText(generateURL.toString());
 
-                gitAsync gitTask = new gitAsync();
-
-                gitTask.execute();
+                new gitAsync().execute(generateURL);
 
 
             }
@@ -58,34 +60,39 @@ public class MainActivity extends AppCompatActivity {
         search_btn.setOnClickListener(onClickListener);
     }
 
-    class gitAsync extends AsyncTask<URL, Void, String> {
+    class gitAsync extends AsyncTask<URL, Void, Void> {
 
         @Override
-        protected String doInBackground(URL... urls) {
+        protected Void doInBackground(URL... urls) {
             URL searchUrl = urls[0];
             String gitSearchUrl = null;
 
             try {
                 gitSearchUrl = Network.getResponseFromHttpUrl(searchUrl);
 
+                JSONObject baseJsonResponse = (JSONObject) new JSONTokener(gitSearchUrl).nextValue();
+                items = baseJsonResponse.getJSONArray("items");
+
             } catch (IOException e1) {
                 e1.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
-            return gitSearchUrl;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(String s) {
+        protected void onPostExecute(Void aVoid) {
+            final ArrayList<GitData> gitData = new ArrayList<>();
 
-            ArrayList<GitData> gitData = new ArrayList<>();
+            if(items.length() == 0){
+                return;
+            }
 
             try {
-                JSONObject baseJsonResponse = new JSONObject(String.valueOf(generateURL));
-                JSONArray featureArray = baseJsonResponse.getJSONArray("items");
-
-                for (int i = 0; i < featureArray.length(); i++) {
-                    JSONObject currentGitData = featureArray.getJSONObject(i);
+                for (int i = 0; i < items.length(); i++) {
+                    JSONObject currentGitData = items.getJSONObject(i);
 
                     String repoName = currentGitData.getString("name");
                     String descript = currentGitData.getString("description");
@@ -100,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
             ApiAdapter adapter = new ApiAdapter(MainActivity.this, gitData);
+
             gitListView.setAdapter(adapter);
         }
     }

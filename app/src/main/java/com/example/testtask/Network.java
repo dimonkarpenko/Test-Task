@@ -37,6 +37,8 @@ public class Network {
 
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+        urlConnection.setRequestMethod("GET");
+
         try {
             InputStream in = urlConnection.getInputStream();
 
