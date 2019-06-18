@@ -15,22 +15,25 @@
 
         <ImageView
             android:id="@+id/avatar_image"
-            android:layout_width="wrap_content"
+            android:layout_width="65dp"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            android:layout_gravity="top"/>
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical|center_horizontal">
 
             <TextView
                 android:id="@+id/repo_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Hello World!"
+                android:maxLength="15"
                 style="@style/ContentView"/>
 
             <TextView
@@ -38,8 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Description here"
-                android:maxLines="2"
-                android:maxLength="50"
+                android:maxLength="18"
                 android:ellipsize="end"/>
 
         </LinearLayout>

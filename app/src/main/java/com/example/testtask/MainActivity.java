@@ -1,10 +1,12 @@
 package com.example.testtask;
 
-import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -18,6 +20,7 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -58,6 +61,8 @@ public class MainActivity extends AppCompatActivity {
         };
 
         search_btn.setOnClickListener(onClickListener);
+
+
     }
 
     class gitAsync extends AsyncTask<URL, Void, Void> {
@@ -97,8 +102,12 @@ public class MainActivity extends AppCompatActivity {
                     String repoName = currentGitData.getString("name");
                     String descript = currentGitData.getString("description");
                     String forks = currentGitData.getString("forks");
+                    String link = currentGitData.getString("html_url");
 
-                    GitData git = new GitData(repoName, descript, forks);
+                    JSONObject owner = currentGitData.getJSONObject("owner");
+                    String thumbnail = owner.getString("avatar_url");
+
+                    GitData git = new GitData(repoName, descript, forks, thumbnail, link);
 
                     gitData.add(git);
 
@@ -110,6 +119,17 @@ public class MainActivity extends AppCompatActivity {
             ApiAdapter adapter = new ApiAdapter(MainActivity.this, gitData);
 
             gitListView.setAdapter(adapter);
+
+            gitListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    GitData current = gitData.get(position);
+                    Uri gitUri = Uri.parse(current.getLink());
+                    Intent websiteIntent = new Intent(Intent.ACTION_VIEW, gitUri);
+                    startActivity(websiteIntent);
+                }
+            });
         }
     }
+
 }
