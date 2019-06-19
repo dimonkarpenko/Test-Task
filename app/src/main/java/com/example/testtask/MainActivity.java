@@ -10,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     ListView gitListView;
     URL generateURL;
     JSONArray items;
+    ProgressBar indicator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
         search_btn = (Button) findViewById(R.id.search_btn);
         search_et = (EditText) findViewById(R.id.search_et);
         display = (TextView) findViewById(R.id.display_url);
+        indicator = (ProgressBar) findViewById(R.id.loading_indicator);
 
 
         gitListView = (ListView) findViewById(R.id.list);
@@ -68,6 +71,12 @@ public class MainActivity extends AppCompatActivity {
     class gitAsync extends AsyncTask<URL, Void, Void> {
 
         @Override
+        protected void onPreExecute() {
+            indicator.setVisibility(View.VISIBLE);
+            super.onPreExecute();
+        }
+
+        @Override
         protected Void doInBackground(URL... urls) {
             URL searchUrl = urls[0];
             String gitSearchUrl = null;
@@ -89,6 +98,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void aVoid) {
+            indicator.setVisibility(View.INVISIBLE);
+
             final ArrayList<GitData> gitData = new ArrayList<>();
 
             if(items.length() == 0){
